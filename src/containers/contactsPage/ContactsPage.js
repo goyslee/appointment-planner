@@ -1,31 +1,37 @@
 import React, { useState, useEffect } from "react";
-import { ContactForm } from "../../components/contactForm/ContactForm";
 import { TileList } from "../../components/tileList/TileList";
+import { ContactForm } from "../../components/contactForm/ContactForm";
 
-const ContactsPage = ({ contacts, addContact }) => {
+function ContactsPage({ contacts, addContact }) {
+  // State variables for the contact form inputs
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [duplicate, setDuplicate] = useState(false);
+  // State for duplicate name check
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!duplicate) {
-      addContact(name, phone, email);
-      setName("");
-      setPhone("");
-      setEmail("");
-    }
+  // Effect to check for name duplicates in the contacts
+  useEffect(() => {
+    setIsDuplicate(contacts.some((contact) => contact.name === name));
+  }, [name, contacts]);
+
+  // Reset form fields
+  const resetForm = () => {
+    setName("");
+    setPhone("");
+    setEmail("");
   };
 
-  useEffect(() => {
-    const nameIsDuplicate = contacts.some((contact) => contact.name === name);
-    if (nameIsDuplicate) {
-      setDuplicate(true);
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isDuplicate) {
+      alert("Name already exists. Please use a different name.");
     } else {
-      setDuplicate(false);
+      addContact(name, phone, email);
+      resetForm();
     }
-  }, [name, contacts]);
+  };
 
   return (
     <div>
@@ -40,6 +46,11 @@ const ContactsPage = ({ contacts, addContact }) => {
           setEmail={setEmail}
           handleSubmit={handleSubmit}
         />
+        {isDuplicate && (
+          <p className="error">
+            Name already exists. Please use a different name.
+          </p>
+        )}
       </section>
       <hr />
       <section>
@@ -48,6 +59,6 @@ const ContactsPage = ({ contacts, addContact }) => {
       </section>
     </div>
   );
-};
+}
 
 export default ContactsPage;
